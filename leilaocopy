@@ -1,41 +1,52 @@
 pragma solidity 0.5.8;
 
 contract Leilao {
+// repare que até esse momento, não houve qualquer novidade. Apenas definimos a versão e o título do contrato. 
 
     address payable public contaGovernamental;
+//      ^---------- agora o endereço é uma conta que pode receber Ethers. Na aula de hoje vamos tranferir valores entre contas específicas.     
     uint public prazoFinalLeilao;
-
+    
     address public maiorOfertante;
     uint public maiorLance;
-
+    
     mapping(address => uint) public lancesRealizados;
+/* ----------MAPPING: 
+Objetivo - organizar as informações conforme os parâmetros definidos nos parênteses;
+Tradução - organizar os endereços (contas) de acordo com os valores informados;
+Estrutura: é composta por ( xxx => xxx).
+O símbolo "=>" significa conformidade, enquanto "xxx" deve ser substituído pelos parâmetros que serão organizados.   
+
+*/ 
 
     bool public encerrado;
+/*  ----------BOOL:
+Objetivo - 
 
+*/ 
     event novoMaiorLance(address ofertante, uint valor);
     event fimDoLeilao(address arrematante, uint valor);
-
+    
     modifier somenteGoverno {
-        require(msg.sender == contaGovernamental, "Somente Governo pode realizar essa operacao");
+        require(msg.sender == contaGovernamental, "Somente Governo pode realizar essa operação");
         _;
     }
 
     constructor(
         uint _duracaoLeilao,
-        address payable _contaGovernamental
+        address payable _contaGovernamental    
     ) public {
-        contaGovernamental = _contaGovernamental;
+        contaGovernamental= _contaGovernamental;
         prazoFinalLeilao = now + _duracaoLeilao;
     }
-
-
+    
     function lance() public payable {
- 
+        
         require(
             now <= prazoFinalLeilao,
             "Leilao encerrado."
         );
-
+        
         require(
             msg.value > maiorLance,
             "Ja foram apresentados lances maiores."
@@ -43,23 +54,25 @@ contract Leilao {
         
         maiorOfertante = msg.sender;
         maiorLance = msg.value;
-         
-        if (maiorLance != 0) {
+        
+        if (maiorLance !=0) {
             lancesRealizados[maiorOfertante] = maiorLance;
         }
         
         emit novoMaiorLance (msg.sender, msg.value);
     }
-
-   
-    function finalizaLeilao() public somenteGoverno {
-       
-        require(now >= prazoFinalLeilao, "Leilao ainda nao encerrado.");
-        require(!encerrado, "Leilao encerrado.");
-
+    
+    
+    function FinalizaLeilao() public somenteGoverno {
+        
+        require(now >= prazoFinalLeilao, "Leilao ainda nao encerrado");
+        require(!encerrado, "Leilao encerrado");
+        
         encerrado = true;
         emit fimDoLeilao(maiorOfertante, maiorLance);
-
-        contaGovernamental.transfer(address(this).balance);
+    
+    contaGovernamental.transfer(address(this).balance);
+    
     }
+    
 }
