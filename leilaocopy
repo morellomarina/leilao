@@ -21,16 +21,30 @@ O símbolo "=>" significa conformidade, enquanto "xxx" deve ser substituído pel
 
     bool public encerrado;
 /*  ----------BOOL:
-Objetivo - 
-
+Objetivo - estruturar se a informação é verdadeira ou falsa. Sua execução será vista mais a frente. 
 */ 
     event novoMaiorLance(address ofertante, uint valor);
     event fimDoLeilao(address arrematante, uint valor);
-    
+/*-----------EVENT:
+Objetivo: alertar certo acontecimento no contrato. 
+Nesse caso: comunica quando há um lance maior que os anteriores ou que o leilao chegou ao fim.
+Pode ter certo app que fica monitorando o seu contrato. O evento serve como um alerta. 
+*/ 
     modifier somenteGoverno {
         require(msg.sender == contaGovernamental, "Somente Governo pode realizar essa operação");
         _;
     }
+/*-----------MODIFIER:  
+Objetivo: fazer um como se fosse um triagem para que o comando viesse a funcionar.
+Estrutura: modifier nome {
+palavra chave (require ou outra instrução) + (), em que se inscreve a mensagem a ser eviada com o uso dos operadores** e a mensagem que deve ser enviada àquele que seja diferente da contGovernamental 
+
+**OBS: OPERADORES DE COMPARAÇÃO:
+(a==a) é igual ?
+(a!=b) é diferente?
+(a//b) ou
+(a&&b) e
+*/
 
     constructor(
         uint _duracaoLeilao,
@@ -39,6 +53,9 @@ Objetivo -
         contaGovernamental= _contaGovernamental;
         prazoFinalLeilao = now + _duracaoLeilao;
     }
+
+/* NOW - explicar sobre o tempo
+*/
     
     function lance() public payable {
         
@@ -72,6 +89,9 @@ Objetivo -
         emit fimDoLeilao(maiorOfertante, maiorLance);
     
     contaGovernamental.transfer(address(this).balance);
+/* OBJETIVO: transferir ao endereço da contaGovernamental àquilo que foi depositado nesse contrato.  
+toda vez que houver o (this) está se referendo ao contrato;
+o .balance é aquele referente ao saldo do contrato. 
     
     }
     
